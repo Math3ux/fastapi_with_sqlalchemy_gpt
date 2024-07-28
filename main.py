@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from models import User
-from fastapi import FastAPI;
+from fastapi import FastAPI, HTTPException;
 
 app = FastAPI()
 
@@ -13,7 +13,7 @@ def root():
 def get_user(user_id: int):
     db: Session = SessionLocal()
     user = db.query(User).filter(User.id == user_id).first()
-    if user == None:
-        return {'message': 'User not found'}
+    if user is None:
+        raise HTTPException(status_code=404, detail="Item not found")
     db.close();
     return user
