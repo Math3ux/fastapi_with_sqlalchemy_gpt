@@ -29,3 +29,14 @@ def create_user(user: UserBase):
     db.refresh(db_user)
     db.close()
     return db_user
+
+@app.delete('/users/{user_id}')
+def delete_user(user_id: int):
+    db: Session = SessionLocal()
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    db.delete(user)
+    db.commit()
+    db.close()
+    return user
