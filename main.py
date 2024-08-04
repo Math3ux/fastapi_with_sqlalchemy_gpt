@@ -3,7 +3,7 @@ from database import SessionLocal
 from sqlalchemy.orm import Session
 from models import User
 from fastapi import FastAPI, HTTPException, Depends
-from schemas import UserBase
+from schemas import UserBase, UserUpdate
 
 app = FastAPI()
 
@@ -47,3 +47,18 @@ def delete_user(user_id: int):
     db.commit()
     db.close()
     return user
+
+@app.patch('/users/{user_id}')
+def update_user(user_id: int, user_query: UserUpdate):
+    db: Session = SessionLocal()
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    for key, value in user_query.model_dump(exclude_unset=True).items():
+        setattr(db_user, key, value)
+
+    db.commit()
+    db.refresh(db_user)
+    db.close()
+    return db_user
