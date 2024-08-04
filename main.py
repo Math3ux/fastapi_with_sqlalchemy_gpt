@@ -11,6 +11,13 @@ app = FastAPI()
 def root():
     return {'message': 'Hello World'}
 
+@app.get('/users/')
+def get_all_users():
+    db: Session = SessionLocal()
+    users = db.query(User).all()
+    db.close()
+    return users
+
 @app.get('/users/{user_id}')
 def get_user(user_id: int):
     db: Session = SessionLocal()
