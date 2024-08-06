@@ -7,6 +7,9 @@ from schemas import UserBase, UserUpdate
 
 app = FastAPI()
 
+user_exception_message = "User not found"
+
+
 @app.get('/')
 def root():
     return {'message': 'Hello World'}
@@ -23,7 +26,7 @@ def get_user(user_id: int):
     db: Session = SessionLocal()
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail=user_exception_message)
     db.close();
     return user
 
@@ -42,7 +45,7 @@ def delete_user(user_id: int):
     db: Session = SessionLocal()
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail=user_exception_message)
     db.delete(user)
     db.commit()
     db.close()
@@ -53,7 +56,7 @@ def update_user(user_id: int, user_query: UserUpdate):
     db: Session = SessionLocal()
     db_user = db.query(User).filter(User.id == user_id).first()
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail=user_exception_message)
 
     for key, value in user_query.model_dump(exclude_unset=True).items():
         setattr(db_user, key, value)
